@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+    # basic drupal site installation with dependencies and permissions configured
+    # use `docker exec -ti journal-cms_app_1 /bin/bash` to get a shell
+    app:
+        build: .
+        image: elifesciences/journal-cms #:${IMAGE_TAG}
+        volumes:
+            # todo: ensure writeable by www-data
+            - /var/log/journal-cms:/srv/journal/private/monolog
+            - ./web/sites/default:/srv/journal/web/sites/default
+        ports:
+            - 80:80
+        networks:
+            - internal
+            - external
+
+    # mysql database
+    db:
+        image: mysql:5.7
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_DATABASE: journal_cms
+            MYSQL_USER: journal_cms
+            MYSQL_PASSWORD: journal_cms
+            MYSQL_ROOT_PASSWORD: journal_cms #${MYSQL_ROOT_PASSWORD}
+        volumes:
+            # ensure the database doesn't live within the container.
+            # the database must be preserved between container restarts
+            - ./mysql:/var/lib/mysql
+        networks:
+            - internal
+
+    # caching
+    # use `docker exec -it <container-process-id> redis-cli` to get a shell
+    redis:
+        image: redis:4.0-alpine
+        networks:
+            - internal
+
+    # continue with installation now that drupal has been connected to a database
+    configure:
+        image: elifesciences/journal-cms
+        entrypoint: ["./wait-for-it.sh", "db:3306", "-t", "120", "--"]
+        command: ./configure.sh
+        depends_on:
+            - app
+            - db
+            - redis
+        networks:
+            - internal
+
+networks:
+    external:
+        driver: bridge
+    internal:
+        driver: bridge

@@ -1,0 +1,22 @@
+parameters:
+  monolog.channel_handlers:
+    default: ['default_handler', 'error_handler']
+  monolog.processors: ['process_id', 'message_placeholder', 'current_user', 'request_uri', 'ip', 'referer']
+
+services:
+  jcms.monolog.formatter_basic:
+    class: Monolog\Formatter\JsonFormatter
+  jcms.monolog.formatter_advanced:
+    class: Monolog\Formatter\JsonFormatter
+    calls:
+      - [includeStacktraces, []]
+  monolog.handler.default_handler:
+    class: Monolog\Handler\StreamHandler
+    arguments: ['private://monolog/all.json']
+    calls:
+      - [setFormatter, ['@jcms.monolog.formatter_basic']]
+  monolog.handler.error_handler:
+    class: Monolog\Handler\StreamHandler
+    arguments: ['private://monolog/error.json', 400]
+    calls:
+      - [setFormatter, ['@jcms.monolog.formatter_advanced']]
