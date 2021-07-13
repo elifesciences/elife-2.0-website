@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class FetchArticleVersions {
 
-  const VERSION_ARTICLE_HISTORY = 1;
+  const VERSION_ARTICLE_HISTORY = 2;
 
   /**
    * GuzzleHttp\Client definition.

@@ -135,9 +135,15 @@ final class ArticleVersions {
     if (!property_exists($json, 'versions')) {
       return $needle;
     }
-    $versions = array_reverse($json->versions);
+    $versions = array_filter($json->versions, function ($version) {
+      return isset($version->version);
+    });
+
+    usort($versions, function ($a, $b) {
+      return $a->version === $b->version ? 0 : (($a->version > $b->version) ? -1 : 1);
+    });
     foreach ($versions as $version) {
-      if ($version->stage == $stage) {
+      if ($version->stage === $stage) {
         $needle = json_encode($version);
         break;
       }

@@ -20,7 +20,7 @@ class ArticleVersionsTest extends UnitTestCase {
   public function setUp() {
     parent::setUp();
     // This is cut down but follows the correct version JSON structure.
-    $this->testJson = '{"versions":[{"stage":"published","title":"Older published"},{"stage":"preview","title":"Older preview"},{"stage":"published","title":"Latest published"},{"stage":"preview","title":"Latest preview"}]}';
+    $this->testJson = '{"versions":[{"status":"preprint"},{"stage":"published","title":"Older published","version":2},{"stage":"preview","title":"Older preview","version":1},{"stage":"published","title":"Latest published","version":4},{"stage":"preview","title":"Latest preview","version":2}]}';
   }
 
   /**
@@ -31,7 +31,7 @@ class ArticleVersionsTest extends UnitTestCase {
    */
   public function testBasicGetters() {
     $id = 19887;
-    $json = '{"versions":[{"stage":"published","title":"Article title"}]}';
+    $json = '{"versions":[{"stage":"published","title":"Article title","version": 1}]}';
     $versions = new ArticleVersions($id, $json, ArticleVersions::DELETE);
     $this->assertEquals($id, $versions->getId());
     $this->assertEquals($json, $versions->getJson());
